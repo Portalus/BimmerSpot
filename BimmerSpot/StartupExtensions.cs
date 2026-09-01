@@ -1,6 +1,7 @@
 ﻿using BimmerSpot.Components;
 using BimmerSpot.Components.Account;
 using BimmerSpot.Data;
+using BimmerSpot.Data.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

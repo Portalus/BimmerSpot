@@ -1,4 +1,4 @@
-using BimmerSpot.Data;
+using BimmerSpot.Data.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 

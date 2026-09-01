@@ -1,6 +1,6 @@
 using BimmerSpot.Components.Account.Pages;
 using BimmerSpot.Components.Account.Pages.Manage;
-using BimmerSpot.Data;
+using BimmerSpot.Data.Models;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
