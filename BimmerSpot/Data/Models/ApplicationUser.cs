@@ -10,5 +10,9 @@ public class ApplicationUser : IdentityUser
 
     [MaxLength(30)]
     public string? CarModel { get; set; }
+
+    public List<Spot> CreatedSpots { get; set; } = [];
+
+    public List<Spot> AttendedSpots { get; set; } = [];
 }
 

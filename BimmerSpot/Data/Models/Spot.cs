@@ -10,7 +10,8 @@ public class Spot
 
     public string? Description { get; set; }
 
-    public required ApplicationUser CreatedBy { get; set; }
+    //Null only when user is deleted
+    public ApplicationUser? CreatedBy { get; set; }
 
     public List<ApplicationUser> Attendants { get; set; } = [];
 }
