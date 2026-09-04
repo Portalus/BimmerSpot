@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace BimmerSpot.Migrations
+namespace BimmerSpot.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260831201507_ExtendedUserByFullNameAndCarModel")]
-    partial class ExtendedUserByFullNameAndCarModel
+    [Migration("20260904075507_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,22 @@ namespace BimmerSpot.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BimmerSpot.Data.ApplicationUser", b =>
+            modelBuilder.Entity("ApplicationUserSpot", b =>
+                {
+                    b.Property<string>("AttendantsId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AttendedSpotsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AttendantsId", "AttendedSpotsId");
+
+                    b.HasIndex("AttendedSpotsId");
+
+                    b.ToTable("ApplicationUserSpot");
+                });
+
+            modelBuilder.Entity("BimmerSpot.Data.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -98,6 +113,38 @@ namespace BimmerSpot.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("BimmerSpot.Data.Models.Spot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("StreetAndNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.ToTable("Spots");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -254,6 +301,31 @@ namespace BimmerSpot.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ApplicationUserSpot", b =>
+                {
+                    b.HasOne("BimmerSpot.Data.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("AttendantsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BimmerSpot.Data.Models.Spot", null)
+                        .WithMany()
+                        .HasForeignKey("AttendedSpotsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BimmerSpot.Data.Models.Spot", b =>
+                {
+                    b.HasOne("BimmerSpot.Data.Models.ApplicationUser", "CreatedBy")
+                        .WithMany("CreatedSpots")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("CreatedBy");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -265,7 +337,7 @@ namespace BimmerSpot.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("BimmerSpot.Data.ApplicationUser", null)
+                    b.HasOne("BimmerSpot.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -274,7 +346,7 @@ namespace BimmerSpot.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("BimmerSpot.Data.ApplicationUser", null)
+                    b.HasOne("BimmerSpot.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -283,7 +355,7 @@ namespace BimmerSpot.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserPasskey<string>", b =>
                 {
-                    b.HasOne("BimmerSpot.Data.ApplicationUser", null)
+                    b.HasOne("BimmerSpot.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -340,7 +412,7 @@ namespace BimmerSpot.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BimmerSpot.Data.ApplicationUser", null)
+                    b.HasOne("BimmerSpot.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -349,11 +421,16 @@ namespace BimmerSpot.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("BimmerSpot.Data.ApplicationUser", null)
+                    b.HasOne("BimmerSpot.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BimmerSpot.Data.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("CreatedSpots");
                 });
 #pragma warning restore 612, 618
         }

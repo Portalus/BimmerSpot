@@ -2,6 +2,7 @@
 using BimmerSpot.Components.Account;
 using BimmerSpot.Data;
 using BimmerSpot.Data.Models;
+using BimmerSpot.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,8 @@ public static class StartupExtensions
         builder.Services.AddCascadingAuthenticationState();
         builder.Services.AddScoped<IdentityRedirectManager>();
         builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+
+        builder.Services.AddHttpContextAccessor();
     }
 
     public static void ConfigureAuth(this WebApplicationBuilder builder)
@@ -56,6 +59,7 @@ public static class StartupExtensions
     public static void AddServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+        builder.Services.AddScoped<ISpotService, SpotService>();
     }
 
     public static void ConfigureAppDefaults(this WebApplication app)

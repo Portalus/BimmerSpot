@@ -4,9 +4,11 @@ public class Spot
 {
     public int Id { get; set; }
 
-    public required DateTime StartDate { get; set; }
+    public required DateTime StartDateTime { get; set; }
 
-    public required string Location { get; set; }
+    public required string City { get; set; }
+
+    public required string StreetAndNumber { get; set; }
 
     public string? Description { get; set; }
 

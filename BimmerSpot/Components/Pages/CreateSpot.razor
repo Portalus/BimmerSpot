@@ -1,0 +1,110 @@
+﻿@page "/CreateSpot"
+
+@attribute [Authorize]
+
+@inject UserManager<ApplicationUser> UserManager;
+@inject NavigationManager NavigationManager
+@inject ISpotService SpotService
+@inject IHttpContextAccessor ContextAccessor;
+
+@using System.Diagnostics
+@using BimmerSpot.Data.Models
+@using BimmerSpot.Models
+@using BimmerSpot.Models.OneOf
+@using BimmerSpot.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+
+<PageTitle>Tworzenie spotu</PageTitle>
+
+<div class="row">
+    <div class="col-lg-6">
+        <EditForm Model="Form" method="post" OnValidSubmit="CreateSpotAsync" FormName="createSpot">
+            <DataAnnotationsValidator />
+            <h2>Tworzenie spotu:</h2>
+            <hr />
+            <ValidationSummary class="text-danger" role="alert" />
+            
+            <div class="form-floating mb-3">
+                <InputDate @bind-Value="Form.StartDate"
+                           id="date"
+                           class="form-control"
+                           Type="InputDateType.Date" />
+
+                <label for="date">Data</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="time"
+                       @bind="Form.StartTime"
+                       id="time"
+                       class="form-control"
+                       step="60" />
+
+                <label for="time">Godzina</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Form.City" id="City" class="form-control" autocomplete="city" aria-required="true" placeholder="Poznań" />
+                <label for="City">Miejscowość</label>
+                <ValidationMessage For="() => Form.City" class="text-danger" />
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Form.StreetAndNumber" id="StreetAndNumber" class="form-control" autocomplete="StreetAndNumber" aria-required="true" placeholder="Wyścigowa 3" />
+                <label for="StreetAndNumber">Ulica i numer</label>
+                <ValidationMessage For="() => Form.StreetAndNumber" class="text-danger" />
+            </div>
+
+            <InputTextArea @bind-Value="Form.Description"
+                           id="Description"
+                           class="form-control"
+                           rows="5"
+                           style="resize: none"
+                           placeholder="Opisz miejsca spotkania (nie wymagany)" />
+
+            <button type="submit" class="w-100 btn btn-lg btn-primary">Stwórz</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private CreateSpotForm Form { get; set; } = new();
+
+    public async Task CreateSpotAsync()
+    {
+        var loggedUser = await UserManager.GetUserAsync(ContextAccessor.HttpContext!.User);
+
+        if(loggedUser is null)
+        {
+            throw new UnreachableException("This page is displayed only for logged users. User should exist");
+        }
+
+        var createSpotDto = new CreateSpotDto()
+        {
+            StartDateTime = new DateTime(Form.StartDate, Form.StartTime),
+            City = Form.City,
+            StreetAndNumber = Form.StreetAndNumber,
+            Description = Form.Description,
+            CreatedBy = loggedUser!
+        };
+
+        var result = await SpotService.CreateSpotAsync(createSpotDto);
+
+        if(result.Value is CreatedSpotDto)
+        {
+            //TODO: Should navigate to created spot page
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private class CreateSpotForm
+    {
+        public DateOnly StartDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+        public TimeOnly StartTime { get; set; } = new TimeOnly(DateTime.Now.Hour, DateTime.Now.Minute);
+        public string City { get; set; } = string.Empty;
+        public string StreetAndNumber { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
+}
