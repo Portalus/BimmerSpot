@@ -1,11 +1,16 @@
 ﻿@page "/spots"
+
+@attribute [Authorize]
 @attribute [StreamRendering]
+
 @rendermode InteractiveServer
+
+@inject ISpotService SpotService
 
 @using BimmerSpot.Data.Models
 @using BimmerSpot.Services
+@using Microsoft.AspNetCore.Authorization
 
-@inject ISpotService SpotService
 
 <PageTitle>Spoty</PageTitle>
 
@@ -14,100 +19,165 @@
 
 <div class="btn-group mb-4" role="group" aria-label="Typ wydarzeń">
     <button type="button"
-            class="btn @(ShowUpcoming ? "btn-primary" : "btn-outline-primary")"
-            @onclick="ShowUpcomingSpots">
+        class="btn @(ShowUpcoming ? "btn-primary" : "btn-outline-primary")"
+        @onclick="ShowUpcomingSpots">
         Nadchodzące
     </button>
 
     <button type="button"
-            class="btn @(!ShowUpcoming ? "btn-primary" : "btn-outline-primary")"
-            @onclick="ShowPastSpots">
+        class="btn @(!ShowUpcoming ? "btn-primary" : "btn-outline-primary")"
+        @onclick="ShowPastSpots">
         Minione
     </button>
 </div>
 
 @if (spots == null)
-{
+{ 
     <p><em>Ładowanie...</em></p>
 }
 else if (spots.Count == 0)
-{
+{ 
     <div class="alert alert-light border">
         @(ShowUpcoming
             ? "Brak nadchodzących spotów."
-            : "Brak minionych spotów.")
+            : "Brak minionych spotów.") 
     </div>
 }
 else
 {
     <div class="list-group">
-        @foreach (var spot in spots)
-        {
-            <div class="list-group-item">
-                <div class="row align-items-center">
+    @foreach (var spot in spots)
+    { 
+        <div class="list-group-item"> <div class="row align-items-center">
 
-                    <!-- Data i godzina -->
-                    <div class="col-md-2">
-                        <div class="fw-semibold">
-                            @spot.StartDateTime.ToString("dd.MM.yyyy")
-                        </div>
-                        <div class="text-body-secondary small">
-                            @spot.StartDateTime.ToString("HH:mm")
-                        </div>
+                <!-- Data i godzina -->
+                <div class="col-md-2">
+                    <div class="fw-semibold">
+                        @spot.StartDateTime.ToString("dd.MM.yyyy")
                     </div>
-
-                    <!-- Miasto + ulica -->
-                    <div class="col-md-3">
-                        <div class="fw-semibold">
-                            @spot.City
-                        </div>
-                        <div class="text-body-secondary small">
-                            @spot.StreetAndNumber
-                        </div>
+                    <div class="text-body-secondary small">
+                        @spot.StartDateTime.ToString("HH:mm")
                     </div>
-
-                    <!-- Opis -->
-                    <div class="col-md-4">
-                        @if (!string.IsNullOrWhiteSpace(spot.Description))
-                        {
-                            <span>@spot.Description</span>
-                        }
-                        else
-                        {
-                            <span class="text-body-secondary">
-                                Brak opisu
-                            </span>
-                        }
-                    </div>
-
-                    <!-- Attendants -->
-                    <div class="col-md-3">
-                        <span class="fw-semibold">
-                            @spot.Attendants.Count
-                        </span>
-
-                        <span class="text-body-secondary">
-                            @(spot.Attendants.Count == 1
-                                ? "uczestnik"
-                                : "uczestników")
-                        </span>
-                    </div>
-
                 </div>
+
+                <!-- Miasto + ulica -->
+                <div class="col-md-3">
+                    <div class="fw-semibold">
+                        @spot.City
+                    </div>
+                    <div class="text-body-secondary small">
+                        @spot.StreetAndNumber
+                    </div>
+                </div>
+
+                <!-- Opis -->
+                <div class="col-md-4">
+                    @if (!string.IsNullOrWhiteSpace(spot.Description))
+                    {
+                        <span>@spot.Description</span>
+                    }
+                    else
+                    {
+                        <span class="text-body-secondary">
+                            Brak opisu
+                        </span>
+                    }
+                </div>
+
+                <!-- Attendants -->
+                <div class="col-md-3">
+                    <button type="button"
+                            class="btn btn-sm btn-outline-primary mt-2"
+                            @onclick="() => OpenAttendantsModal(spot)">
+                            Uczestnicy: @spot.Attendants.Count/10
+                    
+                </div>
+
             </div>
-        }
+        </div>
+    }
     </div>
 }
 
-@code {
+@if (SelectedSpot is not null)
+{ 
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show d-block"
+         tabindex="-1"
+         role="dialog"
+         aria-modal="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Lista uczestników:
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            aria-label="Zamknij"
+                            @onclick="CloseAttendantsModal">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                    @if (SelectedSpot.Attendants.Count == 0)
+                    {
+                        <div class="text-body-secondary">
+                            Brak uczestników.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var attendant in SelectedSpot.Attendants)
+                            {
+                                <div class="list-group-item px-0">
+                                    <div class="fw-semibold">
+                                        @attendant.FullName
+                                    </div>
+
+                                    <div class="text-body-secondary small">
+                                        @attendant.CarModel
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            @onclick="CloseAttendantsModal">
+                        Zamknij
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code 
+{
     private List<Spot>? spots;
 
+    private Spot? SelectedSpot { get; set; }
+
     private bool ShowUpcoming { get; set; } = true;
+
 
     protected override async Task OnInitializedAsync()
     {
         await LoadSpotsAsync();
     }
+
 
     private async Task ShowUpcomingSpots()
     {
@@ -115,16 +185,30 @@ else
         await LoadSpotsAsync();
     }
 
+
     private async Task ShowPastSpots()
     {
         ShowUpcoming = false;
         await LoadSpotsAsync();
     }
 
+
     private async Task LoadSpotsAsync()
     {
         spots = ShowUpcoming
             ? await SpotService.GetIncommingSpotsAsync()
             : await SpotService.GetPastSpotsAsync();
+    }
+
+
+    private void OpenAttendantsModal(Spot spot)
+    {
+        SelectedSpot = spot;
+    }
+
+
+    private void CloseAttendantsModal()
+    {
+        SelectedSpot = null;
     }
 }
