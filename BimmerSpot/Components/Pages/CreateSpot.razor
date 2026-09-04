@@ -36,7 +36,8 @@
 
             <div class="form-floating mb-3">
                 <input type="time"
-                       @bind="Form.StartTime"
+                        name="Form.StartTime"
+                       value="@Form.StartTime"
                        id="time"
                        class="form-control"
                        step="60" />
@@ -81,9 +82,18 @@
             throw new UnreachableException("This page is displayed only for logged users. User should exist");
         }
 
+        if (!TimeOnly.TryParseExact(
+            Form.StartTime,
+            "HH:mm",
+            out var startTime))
+        {
+            return;
+        }
+
+
         var createSpotDto = new CreateSpotDto()
         {
-            StartDateTime = new DateTime(Form.StartDate, Form.StartTime),
+            StartDateTime = new DateTime(Form.StartDate, startTime),
             City = Form.City,
             StreetAndNumber = Form.StreetAndNumber,
             Description = Form.Description,
@@ -102,9 +112,13 @@
     private class CreateSpotForm
     {
         public DateOnly StartDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
-        public TimeOnly StartTime { get; set; } = new TimeOnly(DateTime.Now.Hour, DateTime.Now.Minute);
+
+        public string StartTime { get; set; } = DateTime.Now.ToString("HH:mm");
+
         public string City { get; set; } = string.Empty;
+
         public string StreetAndNumber { get; set; } = string.Empty;
+
         public string Description { get; set; } = string.Empty;
     }
 }

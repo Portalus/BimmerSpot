@@ -1,0 +1,130 @@
+﻿@page "/spots"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+@using BimmerSpot.Data.Models
+@using BimmerSpot.Services
+
+@inject ISpotService SpotService
+
+<PageTitle>Spoty</PageTitle>
+
+<h2>Spoty:</h2>
+<hr />
+
+<div class="btn-group mb-4" role="group" aria-label="Typ wydarzeń">
+    <button type="button"
+            class="btn @(ShowUpcoming ? "btn-primary" : "btn-outline-primary")"
+            @onclick="ShowUpcomingSpots">
+        Nadchodzące
+    </button>
+
+    <button type="button"
+            class="btn @(!ShowUpcoming ? "btn-primary" : "btn-outline-primary")"
+            @onclick="ShowPastSpots">
+        Minione
+    </button>
+</div>
+
+@if (spots == null)
+{
+    <p><em>Ładowanie...</em></p>
+}
+else if (spots.Count == 0)
+{
+    <div class="alert alert-light border">
+        @(ShowUpcoming
+            ? "Brak nadchodzących spotów."
+            : "Brak minionych spotów.")
+    </div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var spot in spots)
+        {
+            <div class="list-group-item">
+                <div class="row align-items-center">
+
+                    <!-- Data i godzina -->
+                    <div class="col-md-2">
+                        <div class="fw-semibold">
+                            @spot.StartDateTime.ToString("dd.MM.yyyy")
+                        </div>
+                        <div class="text-body-secondary small">
+                            @spot.StartDateTime.ToString("HH:mm")
+                        </div>
+                    </div>
+
+                    <!-- Miasto + ulica -->
+                    <div class="col-md-3">
+                        <div class="fw-semibold">
+                            @spot.City
+                        </div>
+                        <div class="text-body-secondary small">
+                            @spot.StreetAndNumber
+                        </div>
+                    </div>
+
+                    <!-- Opis -->
+                    <div class="col-md-4">
+                        @if (!string.IsNullOrWhiteSpace(spot.Description))
+                        {
+                            <span>@spot.Description</span>
+                        }
+                        else
+                        {
+                            <span class="text-body-secondary">
+                                Brak opisu
+                            </span>
+                        }
+                    </div>
+
+                    <!-- Attendants -->
+                    <div class="col-md-3">
+                        <span class="fw-semibold">
+                            @spot.Attendants.Count
+                        </span>
+
+                        <span class="text-body-secondary">
+                            @(spot.Attendants.Count == 1
+                                ? "uczestnik"
+                                : "uczestników")
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<Spot>? spots;
+
+    private bool ShowUpcoming { get; set; } = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSpotsAsync();
+    }
+
+    private async Task ShowUpcomingSpots()
+    {
+        ShowUpcoming = true;
+        await LoadSpotsAsync();
+    }
+
+    private async Task ShowPastSpots()
+    {
+        ShowUpcoming = false;
+        await LoadSpotsAsync();
+    }
+
+    private async Task LoadSpotsAsync()
+    {
+        spots = ShowUpcoming
+            ? await SpotService.GetIncommingSpotsAsync()
+            : await SpotService.GetPastSpotsAsync();
+    }
+}

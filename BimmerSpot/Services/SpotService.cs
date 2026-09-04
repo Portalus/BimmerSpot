@@ -4,6 +4,7 @@ using BimmerSpot.Mappers;
 using BimmerSpot.Models;
 using BimmerSpot.Models.OneOf;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using OneOf;
 
 namespace BimmerSpot.Services;
@@ -30,4 +31,16 @@ public class SpotService : ISpotService
 
         return newSpot.ToCreatedSpotDto();
     }
+
+    public async Task<List<Spot>> GetIncommingSpotsAsync() =>
+        await _dbContext.Spots
+            .Where(s => s.StartDateTime > DateTime.Now.AddHours(-1))
+            .Include(s => s.Attendants)
+            .ToListAsync();
+
+    public async Task<List<Spot>> GetPastSpotsAsync() =>
+        await _dbContext.Spots
+            .Where(s => s.StartDateTime < DateTime.Now)
+            .Include(s => s.Attendants)
+            .ToListAsync();
 }
