@@ -60,6 +60,7 @@ public static class StartupExtensions
     {
         builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
         builder.Services.AddScoped<ISpotService, SpotService>();
+        builder.Services.AddScoped<IUserService, UserService>();
     }
 
     public static void ConfigureAppDefaults(this WebApplication app)

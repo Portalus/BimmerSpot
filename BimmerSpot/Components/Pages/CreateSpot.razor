@@ -17,11 +17,12 @@
 
 <PageTitle>Tworzenie spotu</PageTitle>
 
+<!---------------------------------- Form ---------------------------------->
+
 <div class="row">
     <div class="col-lg-6">
         <EditForm Model="Form" method="post" OnValidSubmit="CreateSpotAsync" FormName="createSpot">
             <DataAnnotationsValidator />
-            <h2>Tworzenie spotu:</h2>
             <hr />
             <ValidationSummary class="text-danger" role="alert" />
             
@@ -69,6 +70,8 @@
     </div>
 </div>
 
+<!---------------------------------- Code ---------------------------------->
+
 @code {
     [SupplyParameterFromForm]
     private CreateSpotForm Form { get; set; } = new();
@@ -109,6 +112,7 @@
         }
     }
 
+    <!---------------------------------- Form model ---------------------------------->
     private class CreateSpotForm
     {
         public DateOnly StartDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);

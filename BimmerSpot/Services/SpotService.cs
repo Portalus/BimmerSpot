@@ -6,6 +6,7 @@ using BimmerSpot.Models.OneOf;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OneOf;
+using OneOf.Types;
 
 namespace BimmerSpot.Services;
 
@@ -43,4 +44,46 @@ public class SpotService : ISpotService
             .Where(s => s.StartDateTime < DateTime.Now)
             .Include(s => s.Attendants)
             .ToListAsync();
+
+    public async Task<OneOf<Success, LimitReached, UserAlreadyExist>> AddSpotAttendantAsync(
+        Spot spot,
+        ApplicationUser userToAdd)
+    {
+        if (spot.Attendants.Count == 10)
+        {
+            return new LimitReached();
+        }
+
+        if (spot.Attendants.Any(a => a.Id == userToAdd.Id))
+        {
+            return new UserAlreadyExist();
+        }
+
+        spot.Attendants.Add(userToAdd);
+        await _dbContext.SaveChangesAsync();
+
+        return new Success();
+    }
+
+    public async Task<OneOf<Success, UserNotOnTheList>> RemoveSpotAttendantAsync(
+        Spot spot,
+        ApplicationUser userToRemove)
+    {
+        if (!spot.Attendants.Contains(userToRemove))
+        {
+            return new UserNotOnTheList();
+        }
+
+        spot.Attendants.Remove(userToRemove);
+
+        if (spot.Attendants.Count == 0)
+        {
+            _dbContext.Remove(spot);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        await _dbContext.SaveChangesAsync();
+
+        return new Success();
+    }
 }
