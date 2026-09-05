@@ -163,13 +163,13 @@ else
         if(spot.Attendants.Any(a => a.Id == CurrentUser.Id))
         {
             var result = await SpotService.RemoveSpotAttendantAsync(spot, CurrentUser);
-            //TODO: handle message
+            //TODO: handle result
             await LoadSpotsAsync();
         }
         else
         {
             var result = await SpotService.AddSpotAttendantAsync(spot, CurrentUser);
-            //TODO: handle message
+            //TODO: handle result
         }
     }
 
