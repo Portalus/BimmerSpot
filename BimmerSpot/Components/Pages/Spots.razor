@@ -92,24 +92,26 @@ else
                 <!-- Attendants -->
                 <div class="col-md-3">
                     <button type="button"
-                        class= "btn btn-sm d-inline-block mt-2 @(spot.Attendants.Any(a => a.Id == CurrentUser.Id)
-                            ? "btn-outline-success"
-                            : "btn-outline-primary")"
+                        class="btn btn-sm d-inline-block mt-2 btn-outline-primary"
                         @onclick="() => OpenAttendantsModal(spot)">
                         Uczestnicy: @spot.Attendants.Count/10
                     </button>
 
                 <!-- Join or Leave -->
-                    <button type="button"
-                            class="btn btn-sm mt-2 @(spot.Attendants.Any(a => a.Id == CurrentUser.Id)
-                                ? "btn-outline-danger"
-                                : "btn-outline-success")"
-                            @onclick="() => JoinOrLeaveSpotAsync(spot)">
-                            @(spot.Attendants.Any(a => a.Id == CurrentUser.Id)
-                                ? "Zrezygnuj"
-                                : "Dołącz")
-                    </button>
-                </div>
+                        @if (spot.StartDateTime > DateTime.Now.AddHours(-1) &&
+                            spot.Attendants.Count < 10)
+                        {
+                            <button type="button"
+                                class="btn btn-sm mt-2 @(spot.Attendants.Any(a => a.Id == CurrentUser.Id)
+                                    ? "btn-outline-danger"
+                                    : "btn-outline-success")"
+                                @onclick="() => JoinOrLeaveSpotAsync(spot)">
+                                @(spot.Attendants.Any(a => a.Id == CurrentUser.Id)
+                                    ? "Zrezygnuj"
+                                    : "Dołącz")
+                            </button>
+                        }    
+                    </div>
             </div>
         </div>
     }
