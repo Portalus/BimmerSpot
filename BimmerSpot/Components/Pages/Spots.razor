@@ -97,29 +97,37 @@ else
                     }
                 </div>
 
-                <!-- Attendants -->
                 <div class="col-md-3">
+                    <!-- Map -->
+                    <a class="btn btn-sm d-inline-block mt-2 btn-outline-primary"
+                        href="@GetGoogleMapsUrl(spot)"
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        Mapa
+                    </a>
+
+                    <!-- Attendants -->
                     <button type="button"
                         class="btn btn-sm d-inline-block mt-2 btn-outline-primary"
                         @onclick="() => OpenAttendantsModal(spot)">
                         Uczestnicy: @spot.Attendants.Count/10
                     </button>
 
-                <!-- Join or Leave -->
-                        @if (spot.StartDateTime > DateTime.Now.AddHours(-1) &&
-                            spot.Attendants.Count < 10)
-                        {
-                            <button type="button"
-                                class="btn btn-sm mt-2 @(spot.Attendants.Any(a => a.Id == CurrentUser.Id)
-                                    ? "btn-outline-danger"
-                                    : "btn-outline-success")"
-                                @onclick="() => JoinOrLeaveSpotAsync(spot)">
-                                @(spot.Attendants.Any(a => a.Id == CurrentUser.Id)
-                                    ? "Zrezygnuj"
-                                    : "Dołącz")
-                            </button>
-                        }    
-                    </div>
+                    <!-- Join or Leave -->
+                    @if (spot.StartDateTime > DateTime.Now.AddHours(-1) &&
+                        spot.Attendants.Count < 10)
+                    {
+                        <button type="button"
+                            class="btn btn-sm mt-2 @(spot.Attendants.Any(a => a.Id == CurrentUser.Id)
+                                ? "btn-outline-danger"
+                                : "btn-success")"
+                            @onclick="() => JoinOrLeaveSpotAsync(spot)">
+                            @(spot.Attendants.Any(a => a.Id == CurrentUser.Id)
+                                ? "Zrezygnuj"
+                                : "Dołącz")
+                        </button>
+                    }    
+                </div>
             </div>
         </div>
     }
@@ -198,5 +206,13 @@ else
     private void CloseDescriptionModal()
     {
         SelectedDescriptionSpot = null;
+    }
+
+    private static string GetGoogleMapsUrl(Spot spot)
+    {
+        var address = $"{spot.City}, {spot.StreetAndNumber}";
+        var encodedAddress = Uri.EscapeDataString(address);
+
+        return $"https://www.google.com/maps/search/?api=1&query={encodedAddress}";
     }
 }

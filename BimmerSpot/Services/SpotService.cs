@@ -33,17 +33,27 @@ public class SpotService : ISpotService
         return newSpot.ToCreatedSpotDto();
     }
 
-    public async Task<List<Spot>> GetIncommingSpotsAsync() =>
-        await _dbContext.Spots
-            .Where(s => s.StartDateTime > DateTime.Now.AddHours(-1))
-            .Include(s => s.Attendants)
-            .ToListAsync();
+    public async Task<List<Spot>> GetIncommingSpotsAsync()
+    {
+        var limit = DateTime.Now.AddHours(-1);
 
-    public async Task<List<Spot>> GetPastSpotsAsync() =>
-        await _dbContext.Spots
-            .Where(s => s.StartDateTime < DateTime.Now)
+        return await _dbContext.Spots
+            .Where(s => s.StartDateTime > limit)
             .Include(s => s.Attendants)
+            .OrderBy(x => x.StartDateTime)
             .ToListAsync();
+    }
+
+    public async Task<List<Spot>> GetPastSpotsAsync()
+    {
+        var limit = DateTime.Now.AddHours(-1);
+
+        return await _dbContext.Spots
+            .Where(s => s.StartDateTime < limit)
+            .Include(s => s.Attendants)
+            .OrderByDescending(x => x.StartDateTime)
+            .ToListAsync();
+    }
 
     public async Task<OneOf<Success, LimitReached, UserAlreadyExist>> AddSpotAttendantAsync(
         Spot spot,
