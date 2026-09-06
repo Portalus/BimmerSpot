@@ -7,6 +7,7 @@
 @inject ISpotService SpotService
 @inject IHttpContextAccessor ContextAccessor;
 
+@using System.ComponentModel.DataAnnotations
 @using System.Diagnostics
 @using BimmerSpot.Data.Models
 @using BimmerSpot.Models
@@ -115,12 +116,16 @@
     <!---------------------------------- Form model ---------------------------------->
     private class CreateSpotForm
     {
+        [Required(ErrorMessage = "Data jest wymagana")]
         public DateOnly StartDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
+        [Required(ErrorMessage = "Godzina jest wymagana")]
         public string StartTime { get; set; } = DateTime.Now.ToString("HH:mm");
 
+        [Required(ErrorMessage = "Miasto jest wymagane")]
         public string City { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "Ulica i numer są wymagane")]
         public string StreetAndNumber { get; set; } = string.Empty;
 
         public string Description { get; set; } = string.Empty;
