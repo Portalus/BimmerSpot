@@ -1,0 +1,55 @@
+﻿@using BimmerSpot.Data.Models
+
+@if (Spot is not null)
+{
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show d-block"
+         tabindex="-1"
+         role="dialog"
+         aria-modal="true">
+
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Opis
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            aria-label="Zamknij"
+                            @onclick="Close">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    @Spot.Description
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            @onclick="Close">
+                        Zamknij
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Spot? Spot { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    private async Task Close()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

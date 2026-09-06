@@ -31,8 +31,10 @@
     </button>
 </div>
 
-<!---------------------------------- Modal ---------------------------------->
+<!---------------------------------- Modals --------------------------------->
 <AttendantsModal Spot="SelectedSpot" OnClose="CloseAttendantsModal" CurrentUser="CurrentUser" />
+
+<DescriptionModal Spot="SelectedDescriptionSpot" OnClose="CloseDescriptionModal" />
 
 <!---------------------------------- Table ---------------------------------->
 @if (spots == null)
@@ -77,15 +79,21 @@ else
 
                 <!-- Opis -->
                 <div class="col-md-4">
-                    @if (!string.IsNullOrWhiteSpace(spot.Description))
+                    @if (spot.Description?.Length > 40)
                     {
-                        <span>@spot.Description</span>
+                        <span>
+                            @spot.Description.Substring(0, 40)...
+                        </span>
+
+                        <button type="button"
+                                class="btn btn-link btn-sm p-0"
+                                @onclick="() => OpenDescriptionModal(spot)">
+                            więcej
+                        </button>
                     }
                     else
                     {
-                        <span class="text-body-secondary">
-                            Brak opisu
-                        </span>
+                        <span>@spot.Description</span>
                     }
                 </div>
 
@@ -128,6 +136,8 @@ else
     private Spot? SelectedSpot { get; set; }
 
     private bool ShowUpcoming { get; set; } = true;
+
+    private Spot? SelectedDescriptionSpot { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -178,5 +188,15 @@ else
     private void CloseAttendantsModal()
     {
         SelectedSpot = null;
+    }
+
+    private void OpenDescriptionModal(Spot spot)
+    {
+        SelectedDescriptionSpot = spot;
+    }
+
+    private void CloseDescriptionModal()
+    {
+        SelectedDescriptionSpot = null;
     }
 }
