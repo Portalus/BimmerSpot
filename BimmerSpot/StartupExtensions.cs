@@ -32,6 +32,11 @@ public static class StartupExtensions
                     options.DefaultScheme = IdentityConstants.ApplicationScheme;
                     options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
                 })
+            .AddFacebook(options =>
+                {
+                    options.AppId = builder.Configuration["Meta:AppId"]!;
+                    options.AppSecret = builder.Configuration["Meta:AppSecret"]!;
+                })
             .AddIdentityCookies();
     }
 

@@ -55,6 +55,18 @@
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
+                    <form action="/Account/PerformExternalLogin" method="post">
+                        <AntiforgeryToken />
+
+                        <input type="hidden" name="provider" value="Facebook" />
+                        <input type="hidden" name="returnUrl" value="/" />
+
+                        <button type="submit" class="nav-link">
+                            Zarejestruj z Facebook
+                        </button>
+                    </form>
+                </div>
+                <div class="nav-item px-3">
                     <NavLink class="nav-link" href="Account/Login">
                         <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Logowanie
                     </NavLink>
