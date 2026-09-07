@@ -113,7 +113,7 @@
     }
 
     <!---------------------------------- Form model ---------------------------------->
-    private class CreateSpotForm
+    private class CreateSpotForm : IValidatableObject
     {
         [Required(ErrorMessage = "Data jest wymagana")]
         public DateOnly StartDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
@@ -128,5 +128,21 @@
         public string StreetAndNumber { get; set; } = string.Empty;
 
         public string Description { get; set; } = string.Empty;
+
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (TimeOnly.TryParse(StartTime, out var time))
+            {
+                var startDateTime = new DateTime(StartDate, time);
+
+                if (startDateTime < DateTime.Now)
+                {
+                    yield return new ValidationResult(
+                        "Spot nie może rozpoczynać się w przeszłości",
+                        new[] { nameof(StartDate), nameof(StartTime) });
+                }
+            }
+        }
     }
 }
