@@ -17,21 +17,14 @@
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<ExternalLogin> Logger
 
-<PageTitle>Register</PageTitle>
+<PageTitle>Rejestracja</PageTitle>
 
 <StatusMessage Message="@message" />
 <h2>Łączenie konta @ProviderDisplayName</h2>
 <hr />
 
 <div  class="alert alert-info">
-    @if(IsEmailProvided)
-    {
-        <span>Adres Email został powiązany z kontem @ProviderDisplayName, kliknij <strong>Zarejestruj</strong> aby zakończyć rejestrację.</span>
-    }
-    else
-    {
-        <span>Wprowadź adres e-mail, a następnie kliknij <strong>Zarejestruj</strong>, aby zakończyć rejestrację.</span>        
-    }
+    <span>Wypełnij poniższy formularz i kliknij <strong>Zarejestruj</strong> aby zakończyć rejestrację.</span>
 </div>
 
 <div class="row">
@@ -44,11 +37,30 @@
                     id="Input.Email"
                     class="form-control"
                     autocomplete="email"
-                    placeholder="Please enter your email."
                     readonly="@IsEmailProvided"
                     style="@(IsEmailProvided ? "background-color: #e9ecef; cursor: not-allowed;" : "")" />
                 <label for="Input.Email" class="form-label">Email</label>
                 <ValidationMessage For="() => Input.Email" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.FullName"
+                    id="Input.FullName"
+                    class="form-control"
+                    autocomplete="Name"
+                    readonly="@IsNameProvided"
+                    style="@(IsNameProvided ? "background-color: #e9ecef; cursor: not-allowed;" : "")" />
+                <label for="Input.FullName" class="form-label">Imię i nazwisko</label>
+                <ValidationMessage For="() => Input.FullName" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.CarModel"
+                    id="Input.CarModel"
+                    class="form-control"
+                    autocomplete="CarModel"
+                    placeholder="np: e90 325i"
+                    style="" />
+                <label for="Input.CarModel" class="form-label">Model samochodu</label>
+                <ValidationMessage For="() => Input.CarModel" />
             </div>
             <button type="submit" class="w-100 btn btn-lg btn-primary">Zarejestruj</button>
         </EditForm>
@@ -77,6 +89,8 @@
     private string? Action { get; set; }
 
     private bool IsEmailProvided { get; set; }
+
+    private bool IsNameProvided { get; set; }
 
     private string? ProviderDisplayName => externalLoginInfo?.ProviderDisplayName;
 
@@ -146,12 +160,18 @@
         // If the user does not have an account, then ask the user to create an account.
         if (externalLoginInfo.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
         {
-            Input.Email = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email) ?? "";
+            Input.Email = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email) 
+                ?? throw new UnreachableException("No email claim");
 
-            if(!string.IsNullOrEmpty(Input.Email))
-            {
-                IsEmailProvided = true;
-            }
+            IsEmailProvided = true;
+        }
+
+        if(externalLoginInfo.Principal.HasClaim(c => c.Type == ClaimTypes.Name))
+        {
+            Input.FullName = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Name) 
+                ?? throw new UnreachableException("No name claim");
+
+            IsNameProvided = true;
         }
     }
 
@@ -165,6 +185,9 @@
 
         var emailStore = GetEmailStore();
         var user = CreateUser();
+
+        user.FullName = Input.FullName;
+        user.CarModel = Input.CarModel;
 
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
         await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -208,17 +231,12 @@
     {
         try
         {
-            var user = Activator.CreateInstance<ApplicationUser>();
-            
-            user.FullName = externalLoginInfo?.Principal.FindFirstValue(ClaimTypes.Name) 
-                ?? throw new UnreachableException("Użytkownik FB nie ma nazwy");
-
-            return user;
+            return Activator.CreateInstance<ApplicationUser>();
         }
         catch
         {
-            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
-                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor");
+            throw new InvalidOperationException($"Nie można utworzyć '{nameof(ApplicationUser)}'. " +
+                $"Upewnij się że '{nameof(ApplicationUser)}' nie jest klasą abstrakcyjną i ma kontruktor bezparametrowy");
         }
     }
 
@@ -233,8 +251,14 @@
 
     private sealed class InputModel
     {
-        [Required]
+        [Required(ErrorMessage = "Niepoprawny adres email")]
         [EmailAddress]
-        public string Email { get; set; } = "";
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Wprowadź imię i nazwisko")]
+        public string FullName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Wprowadź model samochodu")]
+        public string CarModel { get; set; } = string.Empty;
     }
 }
