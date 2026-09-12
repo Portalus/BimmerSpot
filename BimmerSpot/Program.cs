@@ -6,6 +6,7 @@ builder.AddDefaults();
 builder.ConfigureAuth();
 builder.ConfigureDataBase();
 builder.AddServices();
+builder.AddUtilities();
 
 
 

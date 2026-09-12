@@ -3,6 +3,7 @@ using BimmerSpot.Components.Account;
 using BimmerSpot.Data;
 using BimmerSpot.Data.Models;
 using BimmerSpot.Services;
+using BimmerSpot.Utility;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -66,6 +67,11 @@ public static class StartupExtensions
         builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
         builder.Services.AddScoped<ISpotService, SpotService>();
         builder.Services.AddScoped<IUserService, UserService>();
+    }
+
+    public static void AddUtilities(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddScoped<IdentityErrorDescriber, PolishIdentityErrorDescriber>();
     }
 
     public static void ConfigureAppDefaults(this WebApplication app)
