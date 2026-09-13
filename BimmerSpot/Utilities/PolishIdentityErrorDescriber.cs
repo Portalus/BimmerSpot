@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace BimmerSpot.Utility;
+namespace BimmerSpot.Utilities;
 
 public class PolishIdentityErrorDescriber : IdentityErrorDescriber
 {

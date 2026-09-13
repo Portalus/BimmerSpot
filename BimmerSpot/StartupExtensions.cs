@@ -3,7 +3,7 @@ using BimmerSpot.Components.Account;
 using BimmerSpot.Data;
 using BimmerSpot.Data.Models;
 using BimmerSpot.Services;
-using BimmerSpot.Utility;
+using BimmerSpot.Utilities;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -67,6 +67,8 @@ public static class StartupExtensions
         builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
         builder.Services.AddScoped<ISpotService, SpotService>();
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddSingleton<IFeatureFlagService, FeatureFlagService>();
+        builder.Services.AddSingleton<TextDescriptionService>();
     }
 
     public static void AddUtilities(this WebApplicationBuilder builder)

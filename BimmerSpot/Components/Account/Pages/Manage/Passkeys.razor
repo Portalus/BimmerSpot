@@ -2,17 +2,25 @@
 
 @using System.Buffers.Text
 @using BimmerSpot.Data.Models
+@using BimmerSpot.Services
 @using Microsoft.AspNetCore.Identity
 
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IdentityRedirectManager RedirectManager
+@inject IFeatureFlagService FeatureFlagService
+@inject TextDescriptionService TextService
 
-<PageTitle>Manage your passkeys</PageTitle>
+<PageTitle>Klucze dostępu</PageTitle>
 
-<h3>Manage your passkeys</h3>
-
+<h3>Klucze dostępu</h3>
 <StatusMessage />
+
+@if (!FeatureFlagService.AllowLocalAccountCreation())
+{
+    <p>@TextService.FunctionUnavailable()</p>
+    return;
+}
 
 @if (currentPasskeys is { Count: > 0 })
 {

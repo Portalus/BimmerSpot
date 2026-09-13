@@ -2,6 +2,7 @@
 
 @using System.ComponentModel.DataAnnotations
 @using BimmerSpot.Data.Models
+@using BimmerSpot.Services
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 
@@ -10,10 +11,19 @@
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject IFeatureFlagService FeatureFlagService
+@inject TextDescriptionService TextService
 
-<PageTitle>Log in</PageTitle>
+<PageTitle>Logowanie</PageTitle>
 
-<h1>Log in</h1>
+<h1>Logowanie</h1>
+
+@if (!FeatureFlagService.AllowLocalAccountCreation())
+{
+    <p>@TextService.FunctionUnavailable()</p>
+    return;
+}
+
 <div class="row">
     <div class="col-lg-6">
         <section>

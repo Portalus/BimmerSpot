@@ -1,6 +1,7 @@
 ﻿@page "/Account/Manage/ExternalLogins"
 
 @using BimmerSpot.Data.Models
+@using BimmerSpot.Services
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 
@@ -8,10 +9,19 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IUserStore<ApplicationUser> UserStore
 @inject IdentityRedirectManager RedirectManager
+@inject IFeatureFlagService FeatureFlagService
+@inject TextDescriptionService TextService
 
 <PageTitle>Manage your external logins</PageTitle>
-
 <StatusMessage />
+
+@if (!FeatureFlagService.AllowLocalAccountCreation())
+{
+    <h3>Zarejestrowane loginy</h3>
+    <p>@TextService.FunctionUnavailable()</p>
+    return;
+}
+
 @if (currentLogins?.Count > 0)
 {
     <h3>Registered Logins</h3>

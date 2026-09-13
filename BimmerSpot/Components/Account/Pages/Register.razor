@@ -4,6 +4,7 @@
 @using System.Text
 @using System.Text.Encodings.Web
 @using BimmerSpot.Data.Models
+@using BimmerSpot.Services
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 
@@ -14,8 +15,16 @@
 @inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject IFeatureFlagService FeatureFlagService
+@inject TextDescriptionService TextService
 
 <PageTitle>Register</PageTitle>
+
+@if (!FeatureFlagService.AllowLocalAccountCreation())
+{
+    <p>@TextService.FunctionUnavailable()</p>
+    return;
+}
 
 <div class="row">
     <div class="col-lg-6">
@@ -53,13 +62,6 @@
             <button type="submit" class="w-100 btn btn-lg btn-primary">Zarejestruj</button>
         </EditForm>
     </div>
-    @* <div class="col-lg-4 col-lg-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            <ExternalLoginPicker />
-        </section>
-    </div> *@
 </div>
 
 @code {

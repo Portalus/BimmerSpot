@@ -1,28 +1,31 @@
 ﻿@page "/Account/Manage/PersonalData"
 
 @using BimmerSpot.Data.Models
+@using BimmerSpot.Services
 @using Microsoft.AspNetCore.Identity
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IdentityRedirectManager RedirectManager
+@inject IFeatureFlagService FeatureFlagService
 
-<PageTitle>Personal Data</PageTitle>
+<PageTitle>Dane osobiste</PageTitle>
 
+<h3>Dane osobiste</h3>
 <StatusMessage />
-<h3>Personal Data</h3>
 
 <div class="row">
     <div class="col-md-6">
-        <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
+        <p>Twoje konto zawiera dane osobiste, które nam przekazałeś. Tutaj możesz je pobrać lub usunąć.</p>
         <p>
-            <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
+            <strong>Usunięcie danych spowoduje usunięcie konta, bez możliwośći przywócenia.</strong>
         </p>
         <form action="Account/Manage/DownloadPersonalData" method="post">
             <AntiforgeryToken />
-            <button class="btn btn-primary" type="submit">Download</button>
+            <button class="btn btn-primary" type="submit">Pobierz</button>
+            <p></p>
         </form>
         <p>
-            <a href="Account/Manage/DeletePersonalData" class="btn btn-danger">Delete</a>
+            <a href="Account/Manage/DeletePersonalData" class="btn btn-danger">Usuń konto</a>
         </p>
     </div>
 </div>

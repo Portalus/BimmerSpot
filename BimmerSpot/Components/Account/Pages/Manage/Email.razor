@@ -4,6 +4,7 @@
 @using System.Text
 @using System.Text.Encodings.Web
 @using BimmerSpot.Data.Models
+@using BimmerSpot.Services
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 
@@ -11,12 +12,20 @@
 @inject IEmailSender<ApplicationUser> EmailSender
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject IFeatureFlagService FeatureFlagService
+@inject TextDescriptionService TextService
 
-<PageTitle>Manage email</PageTitle>
+<PageTitle>Zmiana adresu email</PageTitle>
 
-<h3>Manage email</h3>
-
+<h3>Zmiana adresu email</h3>
 <StatusMessage Message="@message"/>
+
+@if (!FeatureFlagService.AllowLocalAccountCreation())
+{
+    <p>@TextService.FunctionUnavailable()</p>
+    return;
+}
+
 <div class="row">
     <div class="col-xl-6">
         <form @onsubmit="OnSendEmailVerificationAsync" @formname="send-verification" id="send-verification-form" method="post">

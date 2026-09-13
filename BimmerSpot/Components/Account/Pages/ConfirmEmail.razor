@@ -2,16 +2,25 @@
 
 @using System.Text
 @using BimmerSpot.Data.Models
+@using BimmerSpot.Services
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IdentityRedirectManager RedirectManager
+@inject IFeatureFlagService FeatureFlagService
+@inject TextDescriptionService TextService
 
-<PageTitle>Confirm email</PageTitle>
+<PageTitle>Potiwerdź email</PageTitle>
 
-<h1>Confirm email</h1>
+<h1>Potwierdź email</h1>
 <StatusMessage Message="@statusMessage" />
+
+@if (!FeatureFlagService.AllowLocalAccountCreation())
+{
+    <p>@TextService.FunctionUnavailable()</p>
+    return;
+}
 
 @code {
     private string? statusMessage;
