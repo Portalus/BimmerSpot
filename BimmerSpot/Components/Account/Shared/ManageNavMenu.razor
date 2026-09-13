@@ -6,11 +6,12 @@
 @inject IFeatureFlagService FeatureFlagService
 
 <ul class="nav nav-pills flex-column">
+    <li class="nav-item">
+        <NavLink class="nav-link" href="Account/Manage" Match="NavLinkMatch.All">Profil</NavLink>
+    </li>
+    
     @if (FeatureFlagService.AllowLocalAccountCreation())
     {
-        <li class="nav-item">
-            <NavLink class="nav-link" href="Account/Manage" Match="NavLinkMatch.All">Profil</NavLink>
-        </li>
         <li class="nav-item">
             <NavLink class="nav-link" href="Account/Manage/Email">Email</NavLink>
         </li>
@@ -30,6 +31,7 @@
             <NavLink class="nav-link" href="Account/Manage/Passkeys">Klucze dostępu</NavLink>
         </li>
     }
+    
     <li class="nav-item">
         <NavLink class="nav-link" href="Account/Manage/PersonalData">Dane osobiste</NavLink>
     </li>
