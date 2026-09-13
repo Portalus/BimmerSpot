@@ -148,6 +148,9 @@
                 "{Name} logged in with {LoginProvider} provider.",
                 externalLoginInfo.Principal.Identity?.Name,
                 externalLoginInfo.LoginProvider);
+
+            await CheckAndUpdateUserCurrentFbNameAsync();
+
             RedirectManager.RedirectTo(ReturnUrl);
             return;
         }
@@ -247,6 +250,32 @@
             throw new NotSupportedException("The default UI requires a user store with email support.");
         }
         return (IUserEmailStore<ApplicationUser>)UserStore;
+    }
+
+    private async Task CheckAndUpdateUserCurrentFbNameAsync()
+    {
+        if(externalLoginInfo is null)
+        {
+            return;
+        }
+
+        var actualUserFbName = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Name);
+        
+        var user = await UserManager.FindByLoginAsync(
+            externalLoginInfo.LoginProvider,
+            externalLoginInfo.ProviderKey);
+
+        if(user is null)
+        {
+            return;
+        }
+
+        if (actualUserFbName is not null &&
+            user.FullName != actualUserFbName)
+        {
+            user.FullName = actualUserFbName;
+            await UserManager.UpdateAsync(user);
+        }
     }
 
     private sealed class InputModel
