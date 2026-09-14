@@ -21,4 +21,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     }
 
     public DbSet<Spot> Spots { get; set; }
+
+    public DbSet<Message> Messages { get; set; }
 }

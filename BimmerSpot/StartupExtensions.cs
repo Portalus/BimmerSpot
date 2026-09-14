@@ -69,6 +69,7 @@ public static class StartupExtensions
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddSingleton<IFeatureFlagService, FeatureFlagService>();
         builder.Services.AddSingleton<TextDescriptionService>();
+        builder.Services.AddScoped<IMessageService, MessageService>();
     }
 
     public static void AddUtilities(this WebApplicationBuilder builder)

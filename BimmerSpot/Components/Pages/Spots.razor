@@ -67,14 +67,23 @@ else
                     </div>
                 </div>
 
-                <!-- Miasto + ulica -->
-                <div class="col-md-3">
-                    <div class="fw-semibold">
-                        @spot.City
+                <!-- Adres + mapa -->
+                <div class="col-md-3 d-flex align-items-center">
+                    <div>
+                        <div class="fw-semibold">
+                            @spot.City
+                        </div>
+                        <div class="text-body-secondary small">
+                            @spot.StreetAndNumber
+                        </div>
                     </div>
-                    <div class="text-body-secondary small">
-                        @spot.StreetAndNumber
-                    </div>
+
+                    <a class="btn btn-sm btn-outline-primary ms-3"
+                        href="@GetGoogleMapsUrl(spot)"
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        Zobacz na mapie
+                    </a>
                 </div>
 
                 <!-- Opis -->
@@ -98,14 +107,6 @@ else
                 </div>
 
                 <div class="col-md-3">
-                    <!-- Map -->
-                    <a class="btn btn-sm d-inline-block mt-2 btn-outline-primary"
-                        href="@GetGoogleMapsUrl(spot)"
-                        target="_blank"
-                        rel="noopener noreferrer">
-                        Mapa
-                    </a>
-
                     <!-- Attendants -->
                     <button type="button"
                         class="btn btn-sm d-inline-block mt-2 btn-outline-primary"

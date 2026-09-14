@@ -1,0 +1,101 @@
+﻿@page "/Contact"
+
+@inject UserManager<ApplicationUser> UserManager;
+@inject IHttpContextAccessor ContextAccessor
+@inject IMessageService MessageService
+@inject IdentityRedirectManager RedirectManager
+@inject IHttpContextAccessor ContextAccessor
+
+@using System.ComponentModel.DataAnnotations
+@using BimmerSpot.Components.Account
+@using BimmerSpot.Components.Account.Shared
+@using BimmerSpot.Data.Models
+@using BimmerSpot.Services
+@using Microsoft.AspNetCore.Identity
+@using OneOf.Types
+
+<PageTitle>Kontakt</PageTitle>
+<StatusMessage />
+
+<!---------------------------------- Form ---------------------------------->
+
+<div class="row">
+    <div class="col-lg-6">
+        <EditForm Model="Form" method="post" OnValidSubmit="SendMessageAsync" FormName="contact">
+            <DataAnnotationsValidator />
+
+            <hr />
+
+            <ValidationSummary class="text-danger" role="alert" />
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Form.Email"
+                           id="Email"
+                           class="form-control"
+                           type="email"
+                           autocomplete="email"
+                           aria-required="true"
+                           style="@(IsEmailProvided ? "background-color: #e9ecef; cursor: not-allowed;" : "")" />
+                <label for="Email">Twój adres email</label>
+                <ValidationMessage For="() => Form.Email" class="text-danger" />
+            </div>
+
+            <div class="mb-3">
+                <InputTextArea @bind-Value="Form.Message"
+                               id="Message"
+                               class="form-control"
+                               rows="8"
+                               placeholder="Treść wiadomośći"
+                               style="resize: vertical" />
+                <ValidationMessage For="() => Form.Message" class="text-danger" />
+            </div>
+
+            <button type="submit" class="w-100 btn btn-lg btn-primary">
+                Wyślij wiadomość
+            </button>
+        </EditForm>
+    </div>
+</div>
+
+<!---------------------------------- Code ---------------------------------->
+@code {
+    [SupplyParameterFromForm]
+    private ContactForm Form { get; set; } = new();
+
+    private bool IsEmailProvided { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var loggedUser = await UserManager.GetUserAsync(ContextAccessor.HttpContext!.User);
+
+        if(loggedUser is not null && 
+            string.IsNullOrEmpty(Form.Email))
+        {
+            Form.Email = loggedUser.Email!;
+            IsEmailProvided = true;
+        }
+    }
+
+    private async Task SendMessageAsync()
+    {
+        var result = await MessageService.CreateMessageAsync(Form.Email, Form.Message);
+
+        if(result.Value is Message)
+        {
+            RedirectManager.RedirectToCurrentPageWithStatus("Wiadomość została wysłana.", ContextAccessor.HttpContext!);
+        }
+    }
+
+    <!---------------------------------- Form model ---------------------------------->
+    private class ContactForm
+    {
+        [Required(ErrorMessage = "Adres e-mail jest wymagany")]
+        [EmailAddress(ErrorMessage = "Podaj poprawny adres e-mail")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Treść wiadomości jest wymagana")]
+        [MinLength(10, ErrorMessage = "Wiadomość musi mieć co najmniej 10 znaków")]
+        public string Message { get; set; } = string.Empty;
+    }
+}
+```

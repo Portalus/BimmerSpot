@@ -13,8 +13,7 @@
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        
+    <nav class="nav flex-column h-100">
         <AuthorizeView>
             <Authorized>
                 <div class="nav-item px-3">
@@ -81,6 +80,12 @@
                 </div>
             </NotAuthorized>
         </AuthorizeView>
+        <div class="nav-item px-3 mt-auto">
+            <NavLink class="nav-link" href="Contact">
+                <span class="bi bi-telephone-fill bootstrap-icon" aria-hidden="true"></span>
+                Kontakt
+            </NavLink>
+        </div>
     </nav>
 </div>
 
