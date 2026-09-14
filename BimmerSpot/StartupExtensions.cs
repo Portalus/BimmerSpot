@@ -2,6 +2,7 @@
 using BimmerSpot.Components.Account;
 using BimmerSpot.Data;
 using BimmerSpot.Data.Models;
+using BimmerSpot.Models.Eums;
 using BimmerSpot.Services;
 using BimmerSpot.Utilities;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -57,6 +58,7 @@ public static class StartupExtensions
                     options.SignIn.RequireConfirmedAccount = false;
                     options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
                 })
+            .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager()
             .AddDefaultTokenProviders();
@@ -99,4 +101,39 @@ public static class StartupExtensions
             .AddInteractiveServerRenderMode();
         app.MapAdditionalIdentityEndpoints();
     }
+
+    public async static void SeedRoles(this WebApplication app)
+    {
+        var scope = app.Services.CreateScope();
+
+        var userManager = scope.ServiceProvider
+            .GetRequiredService<UserManager<ApplicationUser>>();
+
+        var roleManager = scope.ServiceProvider
+            .GetRequiredService<RoleManager<IdentityRole>>();
+
+        var adminRole = UserRole.Admin.ToString();
+
+        //Create role
+        if (!await roleManager.RoleExistsAsync(adminRole))
+        {
+            var result = await roleManager.CreateAsync(new IdentityRole(adminRole));
+
+            if (!result.Succeeded)
+            {
+                throw new Exception(
+                    $"Nie udało się utworzyć roli: " +
+                    string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
+
+        //Grant admin
+        var user = await userManager.FindByEmailAsync("portalus2@tutanota.com");
+
+        if (user is not null && !await userManager.IsInRoleAsync(user, "Admin"))
+        {
+            await userManager.AddToRoleAsync(user, "Admin");
+        }
+    }
+
 }

@@ -6,9 +6,12 @@
 @inject NavigationManager NavigationManager
 @inject ISpotService SpotService
 @inject IHttpContextAccessor ContextAccessor;
+@inject IdentityRedirectManager RedirectManager
 
 @using System.ComponentModel.DataAnnotations
 @using System.Diagnostics
+@using BimmerSpot.Components.Account
+@using BimmerSpot.Components.Account.Shared
 @using BimmerSpot.Data.Models
 @using BimmerSpot.Models
 @using BimmerSpot.Models.OneOf
@@ -17,6 +20,7 @@
 @using Microsoft.AspNetCore.Identity
 
 <PageTitle>Tworzenie spotu</PageTitle>
+<StatusMessage />
 
 <!---------------------------------- Form ---------------------------------->
 
@@ -108,7 +112,9 @@
 
         if(result.Value is CreatedSpotDto)
         {
-            NavigationManager.NavigateTo("/Spots");
+            RedirectManager.RedirectToCurrentPageWithStatus(
+                "Pomyślnie utworzono nowy spot.",
+                ContextAccessor.HttpContext!);
         }
     }
 

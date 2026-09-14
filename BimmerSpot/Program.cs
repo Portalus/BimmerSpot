@@ -13,4 +13,5 @@ builder.AddUtilities();
 var app = builder.Build();
 
 app.ConfigureAppDefaults();
+app.SeedRoles();
 app.Run();

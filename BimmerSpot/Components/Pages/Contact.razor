@@ -82,7 +82,9 @@
 
         if(result.Value is Message)
         {
-            RedirectManager.RedirectToCurrentPageWithStatus("Wiadomość została wysłana.", ContextAccessor.HttpContext!);
+            RedirectManager.RedirectToCurrentPageWithStatus(
+                "Wiadomość została wysłana.",
+                ContextAccessor.HttpContext!);
         }
     }
 

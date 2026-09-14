@@ -17,7 +17,7 @@ public class UserService : IUserService
         _userManager = userManager;
     }
 
-    public async Task<ApplicationUser> GetCurrentUser()
+    public async Task<ApplicationUser> GetCurrentUserAsync()
     {
         if (_contextAccessor.HttpContext is null)
         {

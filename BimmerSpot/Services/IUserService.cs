@@ -4,5 +4,5 @@ namespace BimmerSpot.Services;
 
 public interface IUserService
 {
-    Task<ApplicationUser> GetCurrentUser();
+    Task<ApplicationUser> GetCurrentUserAsync();
 }
