@@ -1,6 +1,4 @@
-﻿@using BimmerSpot.Data.Models
-
-@if (Spot is not null)
+﻿@if (Content is not null)
 {
     <div class="modal-backdrop fade show"></div>
 
@@ -14,7 +12,7 @@
 
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        Opis
+                        @Title
                     </h5>
 
                     <button type="button"
@@ -25,7 +23,7 @@
                 </div>
 
                 <div class="modal-body">
-                    @Spot.Description
+                    @Content
                 </div>
 
                 <div class="modal-footer">
@@ -43,7 +41,10 @@
 
 @code {
     [Parameter]
-    public Spot? Spot { get; set; }
+    public string? Content { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "Opis";
 
     [Parameter]
     public EventCallback OnClose { get; set; }

@@ -34,8 +34,7 @@
 <!---------------------------------- Modals --------------------------------->
 <AttendantsModal Spot="SelectedSpot" OnClose="CloseAttendantsModal" CurrentUser="CurrentUser" />
 
-<DescriptionModal Spot="SelectedDescriptionSpot" OnClose="CloseDescriptionModal" />
-
+<DescriptionModal Content="@SpotDescription" OnClose="CloseDescriptionModal" />
 <!---------------------------------- Table ---------------------------------->
 @if (spots == null)
 { 
@@ -146,7 +145,7 @@ else
 
     private bool ShowUpcoming { get; set; } = true;
 
-    private Spot? SelectedDescriptionSpot { get; set; }
+    private string? SpotDescription { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -201,12 +200,12 @@ else
 
     private void OpenDescriptionModal(Spot spot)
     {
-        SelectedDescriptionSpot = spot;
+        SpotDescription = spot.Description;
     }
 
     private void CloseDescriptionModal()
     {
-        SelectedDescriptionSpot = null;
+        SpotDescription = null;
     }
 
     private static string GetGoogleMapsUrl(Spot spot)

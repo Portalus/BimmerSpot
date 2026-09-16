@@ -1,17 +1,19 @@
 ﻿using BimmerSpot.Data;
 using BimmerSpot.Data.Models;
 using BimmerSpot.Models.OneOf;
+using Microsoft.EntityFrameworkCore;
 using OneOf;
+using OneOf.Types;
 
 namespace BimmerSpot.Services;
 
 public class MessageService : IMessageService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _dbContext;
 
-    public MessageService(ApplicationDbContext context)
+    public MessageService(ApplicationDbContext dbContext)
     {
-        _context = context;
+        _dbContext = dbContext;
     }
 
     public async Task<OneOf<Message, Failure>> CreateMessageAsync(string sender, string content)
@@ -29,9 +31,27 @@ public class MessageService : IMessageService
             CreatedDate = DateTime.Now,
         };
 
-        await _context.AddAsync(message);
-        await _context.SaveChangesAsync();
+        await _dbContext.AddAsync(message);
+        await _dbContext.SaveChangesAsync();
 
         return message;
+    }
+
+    public async Task<List<Message>> GetAllMessagesAsync() =>
+        await _dbContext.Messages.ToListAsync();
+
+    public async Task<OneOf<Success, Failure>> DeleteMessageAsync(Message message)
+    {
+        try
+        {
+            _dbContext.Messages.Remove(message);
+            await _dbContext.SaveChangesAsync();
+
+            return new Success();
+        }
+        catch (Exception ex)
+        {
+            return new Failure(ex.Message);
+        }
     }
 }

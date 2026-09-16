@@ -1,0 +1,134 @@
+﻿@page "/Admin/Messages"
+
+@attribute [Authorize(Roles = "Admin")]
+@attribute [StreamRendering]
+
+@rendermode InteractiveServer
+
+@inject IMessageService MessageService
+@inject IdentityRedirectManager RedirectManager
+@inject IHttpContextAccessor ContextAccessor
+
+@using BimmerSpot.Components.Account
+@using BimmerSpot.Components.Pages.Modals
+@using BimmerSpot.Data.Models
+@using BimmerSpot.Models.OneOf
+@using BimmerSpot.Services
+@using Microsoft.AspNetCore.Authorization
+
+<PageTitle>Wiadomości</PageTitle>
+
+<hr />
+
+@if (messages == null)
+{
+    <p><em>Ładowanie...</em></p>
+}
+else if (messages.Count == 0)
+{
+    <div class="alert alert-light border">
+        Brak wiadomości.
+    </div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var message in messages)
+        {
+            <div class="list-group-item">
+                <div class="row align-items-center">
+
+                    <!-- Data i godzina -->
+                    <div class="col-md-2">
+                        <div class="fw-semibold">
+                            @message.CreatedDate.ToString("dd.MM.yyyy")
+                        </div>
+                        <div class="text-body-secondary small">
+                            @message.CreatedDate.ToString("HH:mm")
+                        </div>
+                    </div>
+
+                    <!-- Sender -->
+                    <div class="col-md-3">
+                        <div class="fw-semibold">
+                            @message.Sender
+                        </div>
+                    </div>
+
+                    <!-- Treść -->
+                    <div class="col-md-5">
+                        @if (message.Content?.Length > 40)
+                        {
+                            <span>
+                                @message.Content.Substring(0, 40)...
+                            </span>
+
+                            <button type="button"
+                                    class="btn btn-link btn-sm p-0"
+                                    @onclick="() => OpenContentModal(message)">
+                                więcej
+                            </button>
+                        }
+                        else
+                        {
+                            <span>@message.Content</span>
+                        }
+                    </div>
+
+                    <!-- Delete-->
+                    <div class="col-md-2">
+                        <button type="button"
+                                class="btn btn-sm mt-2 btn-outline-danger"
+                                @onclick="() => DeleteMessageAsync(message)">
+                            "Usun"
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!---------------------------------- Modal ---------------------------------->
+
+<DescriptionModal Content="@SelectedMessage?.Content" OnClose="CloseContentModal" />
+
+<!---------------------------------- Code ---------------------------------->
+
+@code
+{
+    private List<Message>? messages;
+
+    private Message? SelectedMessage { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        messages = await MessageService.GetAllMessagesAsync();
+    }
+
+    private async Task DeleteMessageAsync(Message message)
+    {
+        var result = await MessageService.DeleteMessageAsync(message);
+
+        if(result.Value is Failure)
+        {
+            RedirectManager.RedirectToCurrentPageWithStatus(
+                $"Usuwanie wiadomości nieudane: {result.AsT1.ErrorDescription}",
+                ContextAccessor.HttpContext!);
+
+            return;
+        }
+
+        messages?.Remove(message);
+    }
+
+    private void OpenContentModal(Message message)
+    {
+        SelectedMessage = message;
+    }
+
+    private void CloseContentModal()
+    {
+        SelectedMessage = null;
+    }
+}
