@@ -38,7 +38,7 @@ public class MessageService : IMessageService
     }
 
     public async Task<List<Message>> GetAllMessagesAsync() =>
-        await _dbContext.Messages.ToListAsync();
+        await _dbContext.Messages.OrderDescending().ToListAsync();
 
     public async Task<OneOf<Success, Failure>> DeleteMessageAsync(Message message)
     {
