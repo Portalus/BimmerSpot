@@ -1,13 +1,16 @@
 ﻿using BimmerSpot.Data.Models;
+using BimmerSpot.Models.OneOf;
 using Microsoft.AspNetCore.Identity;
+using OneOf;
+using OneOf.Types;
 using System.Diagnostics;
 
 namespace BimmerSpot.Services;
 
 public class UserService : IUserService
 {
-    public IHttpContextAccessor _contextAccessor { get; }
-    public UserManager<ApplicationUser> _userManager { get; }
+    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly UserManager<ApplicationUser> _userManager;
 
     public UserService(
         IHttpContextAccessor contextAccessor,
@@ -34,5 +37,42 @@ public class UserService : IUserService
         }
 
         return loggedUser;
+    }
+
+    public List<ApplicationUser> GetAllUsers() =>
+        _userManager.Users
+            .OrderByDescending(x => x.CreatedDate)
+            .ToList();
+
+    public async Task<OneOf<Success, Failure>> DeleteUserAsync(ApplicationUser user)
+    {
+        var result = await _userManager.DeleteAsync(user);
+
+        return result.Succeeded
+            ? new Success()
+            : new Failure(result.Errors.FirstOrDefault()?.Description ?? "Błąd podczas usuwania użytkownika");
+    }
+
+    public async Task<OneOf<Success, Failure>> SetUserLockingAsync(
+        ApplicationUser user,
+        bool lockingEnabled)
+    {
+        var userIsCurrentlyLocked = await _userManager.IsLockedOutAsync(user);
+
+        if ((userIsCurrentlyLocked && lockingEnabled) ||
+            (!userIsCurrentlyLocked && !lockingEnabled))
+        {
+            return new Success();
+        }
+
+        var result = await _userManager.SetLockoutEndDateAsync(
+            user,
+            lockingEnabled
+                ? DateTimeOffset.MaxValue
+                : null);
+
+        return result.Succeeded
+            ? new Success()
+            : new Failure(result.Errors.FirstOrDefault()?.Description ?? "Nieznany błąd");
     }
 }

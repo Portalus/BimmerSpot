@@ -8,6 +8,8 @@ public class ApplicationUser : IdentityUser
     [MaxLength(30)]
     public required string FullName { get; set; }
 
+    public required DateTime CreatedDate { get; set; }
+
     [MaxLength(30)]
     public string? CarModel { get; set; }
 

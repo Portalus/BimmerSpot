@@ -1,0 +1,126 @@
+﻿@page "/Admin/Users"
+
+@attribute [Authorize(Roles = "Admin")]
+@attribute [StreamRendering]
+
+@rendermode InteractiveServer
+
+@inject IUserService UserService
+@inject IdentityRedirectManager RedirectManager
+@inject IHttpContextAccessor ContextAccessor
+
+@using BimmerSpot.Components.Account
+@using BimmerSpot.Components.Account.Shared
+@using BimmerSpot.Data.Models
+@using BimmerSpot.Models.OneOf
+@using BimmerSpot.Services
+@using Microsoft.AspNetCore.Authorization
+
+<PageTitle>Użytkownicy</PageTitle>
+<StatusMessage />
+
+<hr />
+
+@if (users == null)
+{
+    <p><em>Ładowanie...</em></p>
+}
+else if (users.Count == 0)
+{
+    <div class="alert alert-light border">
+        Brak użytkowników.
+    </div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var user in users)
+        {
+            <div class="list-group-item">
+                <div class="row align-items-center">
+
+                    <!-- CreatedDate -->
+                    <div class="col-md-2">
+                        <div class="fw-semibold">
+                            @user.CreatedDate.ToString("dd.MM.yyyy")
+                        </div>
+                        <div class="text-body-secondary small">
+                            @user.CreatedDate.ToString("HH:mm")
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-3">
+                        @user.Email
+                    </div>
+
+                    <!-- FullName -->
+                    <div class="col-md-5">
+                        <div class="fw-semibold">
+                            @user.FullName
+                        </div>
+                    </div>
+
+                    <!-- Lock and Delete-->
+                    <div class="col-md-2">
+                        <button type="button"
+                                class="btn btn-sm mt-2 @(user.LockoutEnd is null
+                                                            ? "btn-outline-warning"
+                                                            : "btn-outline-success")"
+                                @onclick="() => SetUserLockingAsync(user)">
+                            @(user.LockoutEnd is null
+                                ? "Zablokuj"
+                                : "Odblokuj")
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm mt-2 btn-outline-danger"
+                                @onclick="() => DeleteUserAsync(user)">
+                            Usun
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code
+{
+    private List<ApplicationUser>? users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = UserService.GetAllUsers();
+    }
+
+    private async Task DeleteUserAsync(ApplicationUser user)
+    {
+        var result = await UserService.DeleteUserAsync(user);
+
+        if (result.Value is Failure)
+        {
+            RedirectManager.RedirectToCurrentPageWithStatus(
+                $"Usuwanie użytkownika nieudane: {result.AsT1.ErrorDescription}",
+                ContextAccessor.HttpContext!);
+
+            return;
+        }
+
+        users?.Remove(user);
+    }
+
+    private async Task SetUserLockingAsync(ApplicationUser user)
+    {
+        var toggleLock = (user.LockoutEnd is null);
+        var result = await UserService.SetUserLockingAsync(user, toggleLock);
+
+        if(result.Value is Failure)
+        {
+            RedirectManager.RedirectToCurrentPageWithStatus(
+                $"Błąd przy blokowaniu/odblokowaiu: {result.AsT1.ErrorDescription}",
+                ContextAccessor.HttpContext!);
+
+            return;
+        }
+    }
+}
