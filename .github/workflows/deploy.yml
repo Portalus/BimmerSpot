@@ -1,4 +1,4 @@
-name: Test Portalus Runner
+name: Deploy BimmerSpot
 
 on:
   push:
@@ -6,26 +6,17 @@ on:
       - main
 
 jobs:
-  test:
+  deploy:
     runs-on: self-hosted
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Check environment
+      - name: Build Docker image
+        run: docker build -t bimmerspot:latest .
+
+      - name: Deploy BimmerSpot
         run: |
-          echo "User:"
-          whoami
-
-          echo "Docker:"
-          docker version
-
-          echo "Docker Compose:"
-          docker-compose version
-
-          echo "Working directory:"
-          pwd
-
-          echo "Files:"
-          ls -la
+          cd /srv
+          docker-compose up -d --no-build bimmerspot
