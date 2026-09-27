@@ -1,0 +1,31 @@
+name: Test Portalus Runner
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Check environment
+        run: |
+          echo "User:"
+          whoami
+
+          echo "Docker:"
+          docker version
+
+          echo "Docker Compose:"
+          docker compose version
+
+          echo "Working directory:"
+          pwd
+
+          echo "Files:"
+          ls -la
