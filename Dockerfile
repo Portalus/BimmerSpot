@@ -23,8 +23,8 @@ WORKDIR /app
 
 COPY --from=build /app/publish .
 
-ENV ASPNETCORE_HTTP_PORTS=8080
+ENV ASPNETCORE_HTTP_PORTS=5000
 
-EXPOSE 8080
+EXPOSE 5000
 
 ENTRYPOINT ["dotnet", "BimmerSpot.dll"]
