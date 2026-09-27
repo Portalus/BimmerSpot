@@ -6,6 +6,7 @@ using BimmerSpot.Models.Eums;
 using BimmerSpot.Services;
 using BimmerSpot.Utilities;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +25,13 @@ public static class StartupExtensions
         builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
         builder.Services.AddHttpContextAccessor();
+
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders =
+                ForwardedHeaders.XForwardedFor |
+                ForwardedHeaders.XForwardedProto;
+        });
     }
 
     public static void ConfigureAuth(this WebApplicationBuilder builder)
