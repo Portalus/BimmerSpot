@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace BimmerSpot;
 
@@ -31,6 +32,11 @@ public static class StartupExtensions
             options.ForwardedHeaders =
                 ForwardedHeaders.XForwardedFor |
                 ForwardedHeaders.XForwardedProto;
+
+            options.KnownIPNetworks.Add(
+                new System.Net.IPNetwork(
+                    IPAddress.Parse("172.18.0.0"), //Portalus Docker Network address
+                    16));
         });
     }
 
@@ -103,12 +109,18 @@ public static class StartupExtensions
             app.UseHsts();
         }
 
-        app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+        app.UseStatusCodePagesWithReExecute(
+            "/not-found",
+            createScopeForStatusCodePages: true);
+
         app.UseHttpsRedirection();
         app.UseAntiforgery();
+
         app.MapStaticAssets();
+
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
+
         app.MapAdditionalIdentityEndpoints();
     }
 
