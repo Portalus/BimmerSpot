@@ -22,7 +22,7 @@ jobs:
           docker version
 
           echo "Docker Compose:"
-          docker compose version
+          docker-compose version
 
           echo "Working directory:"
           pwd
