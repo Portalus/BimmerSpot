@@ -48,7 +48,9 @@ public static class StartupExtensions
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString));
+            options.UseSqlServer(
+                connectionString,
+                sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -102,9 +104,18 @@ public static class StartupExtensions
         app.MapAdditionalIdentityEndpoints();
     }
 
+    public static void MigrateDb(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        db.Database.Migrate();
+    }
+
     public async static void SeedRoles(this WebApplication app)
     {
-        var scope = app.Services.CreateScope();
+        using var scope = app.Services.CreateScope();
 
         var userManager = scope.ServiceProvider
             .GetRequiredService<UserManager<ApplicationUser>>();

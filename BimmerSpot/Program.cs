@@ -13,5 +13,6 @@ builder.AddUtilities();
 var app = builder.Build();
 
 app.ConfigureAppDefaults();
+app.MigrateDb();
 app.SeedRoles();
 app.Run();
